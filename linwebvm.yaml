@@ -1,0 +1,45 @@
+- hosts: linbackup
+  connection: local
+  tags: deploy
+  gather_facts: no
+
+  tasks:
+    - name: Deploy the linux backup server
+      include_role:
+        name: deploy
+
+
+- hosts: golinbackup
+  connection: ssh
+  tags: oscustom
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Customize the linux backup server
+      include_role:
+        name: guest-os-customization
+
+- hosts: golinbackup
+  connection: ssh
+  tags: package
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Install the package in the Web Server
+      include_role:
+        name: package        
+
+- hosts: linbackup
+  connection: local
+  tags: delete
+  gather_facts: no
+
+  tasks:
+    - name: Delete the linux backup server
+      include_role:
+        name: delete
+
