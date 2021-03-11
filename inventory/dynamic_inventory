@@ -1,0 +1,13 @@
+[linbackup]
+<vm_name>  Mgmt_network_ipv4=''  vsphere_vm_hostname='sfqdn'
+
+[golinbackup]
+xxx.xxx.xxx.xxx
+
+[golinbackup:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_python_interpreter=/usr/bin/python2.7
+ansible_password=
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+

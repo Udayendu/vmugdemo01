@@ -1,0 +1,40 @@
+# vCenter Login Information
+vcenter_hostname: 'xxxxxx'
+vcenter_username: 'xxxxxx@vsphere.local'
+vcenter_password: '******'
+
+# Variable entries for Linux virtual machine
+vsphere_datacenter: ''
+vsphere_folder: ''
+folder: '/{{ vsphere_datacenter }}/vm/{{ vsphere_folder }}'
+vsphere_cluster: ''
+vsphere_datastore: ''
+
+# VM Network Components
+Mgmt_network: ''
+Mgmt_network_nmv4: ''
+Mgmt_network_gwv4: ''
+
+# Tempalate of OEL Linux for Backup Server
+lin_temp: 'centos78'
+
+# Timezone and NTP Server
+# Use below command on a linux system to get timezone:
+## timedatectl list-timezones
+timezone: 'Asia/Kolkata'
+ntp_server:
+  - ''
+  - ''
+
+# DNS server details
+dns_server1: ''
+dns_server2: ''
+dns_domain: ''
+
+# Backup volume size in GiB
+size_gb: 
+
+# aocbackup user's password
+backup_user: 'dbbackup'
+dbbackup_password: ''
+

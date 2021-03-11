@@ -1,0 +1,12 @@
+---
+- name: Install the latest version of Apache & MariaDB
+  package:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - httpd
+    - mariadb-server     
+  register: result
+
+- debug: var=result  
+

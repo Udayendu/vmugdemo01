@@ -1,0 +1,71 @@
+---
+- name: Creating vm folder
+  vcenter_folder:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    validate_certs: 'no'
+    datacenter: '{{ vsphere_datacenter }}'
+    folder_name: '{{ vsphere_folder }}'
+    folder_type: vm
+    state: present
+  delegate_to: localhost
+
+- name: Deploying vm from '{{ lin_temp }}'
+  vmware_guest:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ vsphere_datacenter }}'
+    cluster: '{{ vsphere_cluster }}'
+    datastore: '{{ vsphere_datastore }}'
+    name: '{{ inventory_hostname }}'
+    template: '{{ lin_temp }}'
+    folder: '{{ folder }}'
+    validate_certs: 'no'
+    networks:
+    - name: '{{ Mgmt_network }}'
+      ip: "{{ Mgmt_network_ipv4 }}"
+      netmask: '{{ Mgmt_network_nmv4 }}'
+      gateway: '{{ Mgmt_network_gwv4 }}'
+      device_type: vmxnet3
+      connected: True
+      start_connected: True
+      type: static
+    state: poweredoff
+    customization:
+      hostname: "{{ vsphere_vm_hostname }}"
+      domain: '{{ dns_domain }}'
+      dns_servers:
+        - '{{ dns_server1 }}'
+        - '{{ dns_server2 }}'
+  delegate_to: localhost
+
+- name: Add the backup disk of '{{ size_gb }}' GiB
+  vmware_guest_disk:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ vsphere_datacenter }}'
+    validate_certs: 'no'
+    name: '{{ inventory_hostname }}'
+    disk:
+    - size_gb: '{{ size_gb }}'
+      type: thin
+      state: present
+      datastore: '{{ vsphere_datastore }}'
+      scsi_controller: 0
+      scsi_type: 'paravirtual'
+      unit_number: 2
+
+- name: Start the vm
+  vmware_guest:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    datacenter: '{{ vsphere_datacenter }}'
+    cluster: '{{ vsphere_cluster }}'
+    validate_certs: 'no'
+    name: '{{ inventory_hostname }}'
+    state: poweredon
+    wait_for_ip_address: yes

@@ -1,0 +1,71 @@
+---
+- name: bkpvg volume group creation
+  lvg:
+    vg: bkpvg
+    pvs: /dev/sdb
+
+- name: bkplv00 lvm creation
+  lvol:
+    vg: bkpvg
+    lv: bkplv00
+    size: 100%FREE
+
+- name: Create a filesystem for bkplv00
+  filesystem:
+    fstype: xfs
+    dev: /dev/bkpvg/bkplv00
+
+- name: Mount bkplv00 logical volume under /backup
+  mount:
+    name: /backup
+    src: /dev/bkpvg/bkplv00
+    fstype: xfs
+    state: mounted
+
+- name: Set timezone
+  timezone:
+    name: '{{ timezone }}'
+
+- name: Create 'dbbackup' user
+  user:
+    name: "{{ backup_user }}"
+    shell: /bin/bash
+    comment: DB Backup Admin
+    password: "{{ dbbackup_password | password_hash('sha256') }}"
+    update_password: on_create
+
+- name: Change the group of '/backup' directory
+  file:
+    path: /backup
+    owner: root
+    group: dbbackup
+    mode: g+w
+    recurse: yes
+
+- name: Copy the chronyd file
+  copy:
+    src: "{{ role_path }}/files/chronyd"
+    dest: /etc/sysconfig/chronyd
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy the chrony.conf template file
+  template:  src="{{ role_path }}/files/chrony.conf.j2"  dest=/etc/chrony.conf
+
+- name: Set the NTP to true
+  command: "{{ item }}"
+  with_items:
+    - timedatectl set-ntp true
+
+- name: Start and enable chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+- name: Reboot the system post change
+  reboot:
+    reboot_timeout: 300
+    msg: "Reboot initiated by Ansible"
